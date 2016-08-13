@@ -386,20 +386,21 @@ def cornersHeuristic(state, problem):
         cornersLeft = tuple([i for i in cornersLeft if i != closestCorner])
   
     return heuristic
-  
+
+#Used for food heuristic too
 def closestPoint (fromPoint, candidatesList):
     if len(candidatesList) == 0:
         return None
 
-    closestCorner = candidatesList[0]
-    closestCost = manhattanDistance(fromPoint, closestCorner)
+    closestPoint = candidatesList[0]
+    closestCost = manhattanDistance(fromPoint, closestPoint)
     for candidate in candidatesList[1:]:
         thisCost = manhattanDistance(fromPoint, candidate)
         if thisCost < closestCost:
             closestCost = thisCost
-            closestCorner = candidate
+            closestPoint = candidate
   
-    return closestCorner
+    return closestPoint
   
 def manhattanDistance (pointA, pointB):
     return abs(pointA[0] - pointB[0]) + abs(pointA[1] - pointB[1])
@@ -495,10 +496,32 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-
+    foodList = foodGrid.asList()
+    heuristic = 0
     
-    "*** YOUR CODE HERE ***"
-    return 0
+    if len(foodList) == 0:
+        return 0
+    
+    closestFood = closestPoint(position, foodList)
+    farthestFood = farthestPoint(position, foodList) 
+    #heuristic = manhattanDistance(closestFood, position)
+    heuristic = heuristic + manhattanDistance(farthestFood, position)  
+    #heuristic = heuristic/2
+    return heuristic
+
+def farthestPoint (fromPoint, candidatesList):
+    if len(candidatesList) == 0:
+        return None
+
+    farthestPoint = candidatesList[0]
+    farthestCost = manhattanDistance(fromPoint, farthestPoint)
+    for candidate in candidatesList[1:]:
+        thisCost = manhattanDistance(fromPoint, candidate)
+        if thisCost > farthestCost:
+            farthestCost = thisCost
+            farthestPoint = candidate
+  
+    return farthestPoint
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
