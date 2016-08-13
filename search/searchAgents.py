@@ -405,6 +405,9 @@ def closestPoint (fromPoint, candidatesList):
 def manhattanDistance (pointA, pointB):
     return abs(pointA[0] - pointB[0]) + abs(pointA[1] - pointB[1])
 
+def euclideanDistance (pointA, pointB):
+    return (abs(pointA[0] - pointB[0])**2 + abs(pointA[1] - pointB[1])**2)**0.5
+
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
@@ -504,10 +507,23 @@ def foodHeuristic(state, problem):
     
     closestFood = closestPoint(position, foodList)
     farthestFood = farthestPoint(position, foodList) 
-    #heuristic = manhattanDistance(closestFood, position)
-    heuristic = heuristic + manhattanDistance(farthestFood, position)  
-    #heuristic = heuristic/2
-    return heuristic
+    heuristic = manhattanDistance(closestFood, position)
+    heuristic = heuristic + manhattanDistance(farthestFood, closestFood)
+    
+    leftPoints = 0
+    for (x,y) in foodList:
+        flag = 0
+        if x!=farthestFood[0]:
+            if x!=closestFood[0]:
+                leftPoints = leftPoints + 1
+                flag = 1
+        
+        if flag==0:
+            if y!=farthestFood[1]: 
+                if y!=closestFood[1]:
+                    leftPoints = leftPoints + 1
+    
+    return (heuristic + leftPoints/2)
 
 def farthestPoint (fromPoint, candidatesList):
     if len(candidatesList) == 0:
