@@ -513,15 +513,13 @@ def foodHeuristic(state, problem):
     leftPoints = 0
     for (x,y) in foodList:
         flag = 0
-        if x!=farthestFood[0]:
-            if x!=closestFood[0]:
-                leftPoints = leftPoints + 1
-                flag = 1
+        if x!=farthestFood[0] and x!=closestFood[0]:
+            leftPoints = leftPoints + 1
+            flag = 1
         
-        if flag==0:
-            if y!=farthestFood[1]: 
-                if y!=closestFood[1]:
-                    leftPoints = leftPoints + 1
+        if flag == 0:
+            if y!=farthestFood[1] and y!=closestFood[1]:
+                leftPoints = leftPoints + 1
     
     return (heuristic + leftPoints/2)
 
@@ -568,7 +566,12 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        foodList = food.asList()
+        closestFood = closestPoint(startPosition, foodList)
+        if closestFood != None:
+            prob = PositionSearchProblem(gameState, start=startPosition, goal=closestFood, warn=False)
+            return search.uniformCostSearch(prob)
+        
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -602,9 +605,11 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
+        foodList = food.asList()
+        closestFood = closestPoint(startState, foodList)
+        return (x == closestFood[0] and y == closestFood[1])
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
     """
