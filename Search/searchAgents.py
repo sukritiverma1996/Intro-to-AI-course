@@ -436,6 +436,9 @@ class FoodSearchProblem:
     def isGoalState(self, state):
         return state[1].count() == 0
 
+    def getGameState(self):
+        return self.startingGameState
+
     def getSuccessors(self, state):
         "Returns successor states, the actions they require, and a cost of 1."
         successors = []
@@ -509,6 +512,11 @@ def foodHeuristic(state, problem):
     farthestFood = farthestPoint(position, foodList) 
     heuristic = manhattanDistance(closestFood, position)
     heuristic = heuristic + manhattanDistance(farthestFood, closestFood)
+
+    gameState = problem.getGameState()
+    d1 = mazeDistance(closestFood, position, gameState)
+    d2 = mazeDistance(farthestFood, closestFood, gameState)
+    d3 = mazeDistance(farthestFood, position, gameState)
     
     leftPoints = 0
     for (x,y) in foodList:
@@ -521,7 +529,25 @@ def foodHeuristic(state, problem):
             if y!=farthestFood[1] and y!=closestFood[1]:
                 leftPoints = leftPoints + 1
     
-    return (heuristic + leftPoints/2)
+    #return (heuristic + leftPoints/2)   7988 nodes
+    #return d1    7954 nodes
+    #return d1 + leftPoints/2  7300 nodes
+    #6900 nodes
+    #return d1 + 3*leftPoints/4
+
+    leftPoints2 = 0
+    for (x,y) in foodList:
+        flag = 0
+        if x!=position[0] and x!=closestFood[0]:
+            leftPoints2 = leftPoints2 + 1
+            flag = 1
+        
+        if flag == 0:
+            if y!=position[1] and y!=closestFood[1]:
+                leftPoints2 = leftPoints2 + 1
+    
+    #5500 nodes
+    return d1 + leftPoints2
 
 def farthestPoint (fromPoint, candidatesList):
     if len(candidatesList) == 0:
