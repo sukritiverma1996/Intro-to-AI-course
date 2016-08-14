@@ -546,7 +546,7 @@ def foodHeuristic(state, problem):
             if y!=position[1] and y!=closestFood[1]:
                 leftPoints2 = leftPoints2 + 1
     
-    #5500 nodes
+    #5543 nodes
     return d1 + leftPoints2
 
 def farthestPoint (fromPoint, candidatesList):

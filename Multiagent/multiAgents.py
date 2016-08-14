@@ -215,7 +215,6 @@ def minimax(agent, agentList, state, depth, evalFunc):
       
       # at Leaf
       if depth <= 0 or state.isWin() == True or state.isLose() == True:
-        print evalFunc(state)
         return evalFunc(state)
         
       if agent == 0:
@@ -285,21 +284,21 @@ def minimaxPrune(agent, agentList, state, depth, evalFunc, alpha, beta):
           v = max(v, minimaxPrune(agentList[agent+1], agentList, successor, depth, evalFunc, alpha, beta))
           alpha = max(alpha, v)
           if v > beta:
-            print v
+            #print v
             return v
         
         elif agent == agentList[-1]:  
           v = min(v, minimaxPrune(agentList[0], agentList, successor, depth - 1, evalFunc, alpha, beta))
           beta = min(beta, v)
           if v < alpha:
-            print v
+            #print v
             return v
             
         else:
           v = min(v, minimaxPrune(agentList[agent+1], agentList, successor, depth, evalFunc, alpha, beta))
           beta = min(beta, v)
           if v < alpha:
-            print v
+            #print v
             return v
 
       return v
@@ -317,18 +316,118 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        v = float("-inf")
+        bestAction = []
+        agent = 0
+        actions = gameState.getLegalActions(agent)
+        successors = [(action, gameState.generateSuccessor(agent, action)) for action in actions]
+        for successor in successors:
+            temp = expectimax(1, range(gameState.getNumAgents()), successor[1], self.depth, self.evaluationFunction)
+            if temp > v:
+              v = temp
+              bestAction = successor[0]
+        return bestAction
+
+def expectimax(agent, agentList, state, depth, evalFunc):
+      
+      # at Leaf
+      if depth <= 0 or state.isWin() == True or state.isLose() == True:
+        return evalFunc(state)
+        
+      if agent == 0:
+        v = float("-inf")
+      else:
+        v = 0
+              
+      actions = state.getLegalActions(agent)
+      successors = [state.generateSuccessor(agent, action) for action in actions]
+      for successor in successors:
+        if agent == 0: 
+          v = max(v, expectimax(agentList[agent+1], agentList, successor, depth, evalFunc))
+        elif agent == agentList[-1]:
+          v = v + expectimax(agentList[0], agentList, successor, depth - 1, evalFunc)
+        else:
+          v = v + expectimax(agentList[agent+1], agentList, successor, depth, evalFunc)
+      
+      if agent == 0:
+        return v
+      else:
+        return v/float(len(successors))
 
 def betterEvaluationFunction(currentGameState):
-    """
-      Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-      evaluation function (question 5).
+        """
+          Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+          evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+          DESCRIPTION: <write something here so we know what you did>
+        """
+        "*** YOUR CODE HERE ***"
+        currPos = currentGameState.getPacmanPosition()
+        currFood = currentGameState.getFood()
+        currFoodList = currFood.asList()
 
+        currCapsules = currentGameState.getCapsules()
+        currGhostStates = currentGameState.getGhostStates()
+        scaredTimes = [ghostState.scaredTimer for ghostState in currGhostStates]
+        ghostPositions = currentGameState.getGhostPositions()
+        
+        distance2Ghost = float("inf")
+        
+        scared = min(scaredTimes)
+        
+        for ghost in ghostPositions:
+          d = manhattanDistance(ghost, currPos)
+          distance2Ghost = min(d, distance2Ghost)
+        
+        distance2FoodMin = float("inf")        
+        distance2FoodMax = float("-inf")
+        distance2Cap = float("inf")
+        flagMin = 0
+        flagMax = 0
+        flagCap = 0
+        for food in currFoodList:
+          d = manhattanDistance(food, currPos)
+          if d<distance2FoodMin and d > 0:
+            distance2FoodMin = d
+            minPos = food
+            flagMin = 1
+
+        if flagMin == 1:
+          for food in currFoodList:  
+            d = manhattanDistance(food, minPos)
+            if d > distance2FoodMax and d > 0:
+              distance2FoodMax = d
+              flagMax = 1
+
+        for cap in currCapsules:
+          d = manhattanDistance(cap, currPos)
+          if d < distance2Cap and d > 0:
+            distance2Cap = d
+            flagCap = 1
+
+        foodLeft = float(len(currFoodList))
+        if foodLeft > 0:
+          flagFood = 1
+        else:
+          flagFood = 0
+        
+        ghostFactor = 0
+        if distance2Ghost < 2:
+          if scared < 2:
+            ghostFactor = -100000
+          else:
+            ghostFactor = 10000
+
+        #diff = currentGameState.getScore() - successorGameState.getScore()
+
+        if flagMin == 1 and flagMax == 1 and flagCap == 1:
+          return distance2Ghost + 100000.0/distance2FoodMin + 1000.0/distance2FoodMax + 1000.0/distance2Cap + 100000.0/foodLeft + ghostFactor
+        elif flagMin == 1 and flagCap == 1:
+          return distance2Ghost + 100000.0/distance2FoodMin + 1000.0/distance2Cap + 100000.0/foodLeft + ghostFactor
+        elif flagMin == 1:
+          return distance2Ghost + 100000.0/distance2FoodMin + 100000.0/foodLeft + ghostFactor
+        else:
+          return distance2Ghost + ghostFactor
 # Abbreviation
 better = betterEvaluationFunction
 
