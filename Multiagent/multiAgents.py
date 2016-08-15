@@ -365,7 +365,6 @@ def betterEvaluationFunction(currentGameState):
         currPos = currentGameState.getPacmanPosition()
         currFood = currentGameState.getFood()
         currFoodList = currFood.asList()
-
         currCapsules = currentGameState.getCapsules()
         currGhostStates = currentGameState.getGhostStates()
         scaredTimes = [ghostState.scaredTimer for ghostState in currGhostStates]
@@ -418,16 +417,25 @@ def betterEvaluationFunction(currentGameState):
           else:
             ghostFactor = 10000
 
-        #diff = currentGameState.getScore() - successorGameState.getScore()
+        score = currentGameState.getScore()
+        if currentGameState.isWin():
+          #print "hiiii"
+          return 1000000
 
+        #diff = currentGameState.getScore() - successorGameState.getScore()
+        
         if flagMin == 1 and flagMax == 1 and flagCap == 1:
-          return distance2Ghost + 100000.0/distance2FoodMin + 1000.0/distance2FoodMax + 1000.0/distance2Cap + 100000.0/foodLeft + ghostFactor
+          return distance2Ghost + 100.0/distance2FoodMin + 1.0/distance2FoodMax + 1.0/distance2Cap + 10000.0/foodLeft + ghostFactor + 10*score
+        elif flagMin == 1 and flagMax == 1:
+          return distance2Ghost + 100.0/distance2FoodMin + 1.0/distance2FoodMax + 10000.0/foodLeft + ghostFactor + 10*score
         elif flagMin == 1 and flagCap == 1:
-          return distance2Ghost + 100000.0/distance2FoodMin + 1000.0/distance2Cap + 100000.0/foodLeft + ghostFactor
+          #len(currFoodList) is always 1
+          #print distance2Ghost + 100.0/distance2FoodMin + 10000.0/foodLeft + ghostFactor + 10*score
+          return distance2Ghost + 100.0/distance2FoodMin + 10000.0/foodLeft + ghostFactor + 10*score
         elif flagMin == 1:
-          return distance2Ghost + 100000.0/distance2FoodMin + 100000.0/foodLeft + ghostFactor
-        else:
-          return distance2Ghost + ghostFactor
+          #len(currFoodList) is always 1
+          return distance2Ghost + 100.0/distance2FoodMin + 10000.0/foodLeft + ghostFactor + 10*score
+        
 # Abbreviation
 better = betterEvaluationFunction
 
