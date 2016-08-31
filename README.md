@@ -8,3 +8,5 @@ Multiagent search is an implementation of search tree algorithms used for multip
 Algorithms include MiniMax with Alpha-Beta Pruning and ExpectiMax. 
 
 Also designed evaluation functions to evaluate states and state-action pairs used by a Reflex Agent.
+
+Reinforcement is an implementation of various reinforcement learning techniques such as policy iteration, value iteration, Q-Learning and Approximate Q-Learning on Grid World and Pac-man.
